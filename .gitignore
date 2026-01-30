@@ -1,5 +1,6 @@
 # dependencies
 /node_modules
+mcp-server/node_modules
 /.pnp
 .pnp.js
 
@@ -41,3 +42,14 @@ __pycache__/
 .env
 venv/
 ENV/
+
+# MCP config (contains API keys)
+.mcp.json
+
+# bkit memory
+.bkit-memory.json
+docs/.bkit-memory.json
+docs/.pdca-status.json
+
+# Claude settings
+.claude/
