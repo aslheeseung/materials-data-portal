@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Materials Data Portal - Build Guide</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #fff;
+    }
+    h1 { color: #1a365d; border-bottom: 3px solid #3182ce; padding-bottom: 10px; margin-bottom: 30px; }
+    h2 { color: #2c5282; margin-top: 40px; margin-bottom: 20px; border-left: 4px solid #3182ce; padding-left: 15px; }
+    h3 { color: #2d3748; margin-top: 25px; margin-bottom: 15px; }
+    p { margin-bottom: 15px; }
+    ul, ol { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; }
+    code { background: #edf2f7; padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.9em; }
+    pre { background: #1a202c; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 15px 0; font-size: 0.85em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+    th { background: #3182ce; color: white; }
+    tr:nth-child(even) { background: #f7fafc; }
+    .highlight { background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0; }
+    .success { background: #c6f6d5; padding: 15px; border-radius: 8px; border-left: 4px solid #38a169; margin: 20px 0; }
+    .warning { background: #fed7d7; padding: 15px; border-radius: 8px; border-left: 4px solid #e53e3e; margin: 20px 0; }
+    .step { background: #ebf8ff; padding: 15px; border-radius: 8px; margin: 15px 0; }
+    .step-number { display: inline-block; background: #3182ce; color: white; width: 30px; height: 30px; border-radius: 50%; text-align: center; line-height: 30px; margin-right: 10px; font-weight: bold; }
+    @media print {
+      body { padding: 20px; }
+      h2 { page-break-before: always; }
+      h2:first-of-type { page-break-before: avoid; }
+      pre { white-space: pre-wrap; font-size: 0.8em; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Materials Data Portal - Build Guide</h1>
+<p style="text-align: center; color: #718096;">다른 컴퓨터에서 프로젝트를 빌드하고 실행하기 위한 가이드</p>
+<p style="text-align: center; color: #718096;">Last Updated: 2026-02-01</p>
+
+<h2>1. 사전 요구사항</h2>
+
+<h3>필수 설치</h3>
+<table>
+  <tr>
+    <th>소프트웨어</th>
+    <th>버전</th>
+    <th>설치 링크</th>
+  </tr>
+  <tr>
+    <td>Node.js</td>
+    <td>18+</td>
+    <td><a href="https://nodejs.org/">https://nodejs.org/</a></td>
+  </tr>
+  <tr>
+    <td>Anaconda</td>
+    <td>최신</td>
+    <td><a href="https://www.anaconda.com/download">https://www.anaconda.com/download</a></td>
+  </tr>
+  <tr>
+    <td>Git</td>
+    <td>최신</td>
+    <td><a href="https://git-scm.com/">https://git-scm.com/</a></td>
+  </tr>
+</table>
+
+<h3>API 키 발급</h3>
+<ol>
+  <li><strong>Materials Project API Key</strong>
+    <ul>
+      <li><a href="https://materialsproject.org/">https://materialsproject.org/</a> 가입</li>
+      <li>Dashboard → API → Generate API Key</li>
+    </ul>
+  </li>
+  <li><strong>OpenAI API Key</strong>
+    <ul>
+      <li><a href="https://platform.openai.com/">https://platform.openai.com/</a> 가입</li>
+      <li>API Keys → Create new secret key</li>
+    </ul>
+  </li>
+</ol>
+
+<h2>2. 설치 단계</h2>
+
+<div class="step">
+  <p><span class="step-number">1</span><strong>저장소 클론</strong></p>
+  <pre><code>git clone https://github.com/aslheeseung/materials-data-portal.git
+cd materials-data-portal</code></pre>
+</div>
+
+<div class="step">
+  <p><span class="step-number">2</span><strong>웹 포털 설치</strong></p>
+  <pre><code>npm install</code></pre>
+</div>
+
+<div class="step">
+  <p><span class="step-number">3</span><strong>환경 변수 설정</strong></p>
+  <p>프로젝트 루트에 <code>.env.local</code> 파일 생성:</p>
+  <pre><code># .env.local
+OPENAI_API_KEY=sk-your-openai-api-key
+MP_API_KEY=your-materials-project-api-key</code></pre>
+</div>
+
+<div class="step">
+  <p><span class="step-number">4</span><strong>Python 환경 설정</strong></p>
+  <pre><code># Conda 환경 생성
+conda create -n materialsPortal python=3.10 -y
+
+# 환경 활성화
+conda activate materialsPortal
+
+# Python 의존성 설치
+cd python-server
+pip install -r requirements.txt
+
+# 루트로 돌아가기
+cd ..</code></pre>
+</div>
+
+<div class="step">
+  <p><span class="step-number">5</span><strong>MCP 서버 빌드 (선택사항)</strong></p>
+  <p>Claude Code 연동이 필요한 경우:</p>
+  <pre><code>cd mcp-server
+npm install
+npm run build
+cd ..</code></pre>
+</div>
+
+<h2>3. 실행 방법</h2>
+
+<div class="highlight">
+  <strong>⚠️ 두 개의 터미널이 필요합니다</strong>
+</div>
+
+<h3>터미널 1: 웹 포털</h3>
+<pre><code>npm run dev</code></pre>
+<p>→ <strong>http://localhost:3000</strong></p>
+
+<h3>터미널 2: Python 계산 서버</h3>
+<pre><code>conda activate materialsPortal
+cd python-server
+
+# Windows PowerShell
+$env:MP_API_KEY = "your-materials-project-api-key"
+
+# Mac/Linux
+export MP_API_KEY="your-materials-project-api-key"
+
+python -m uvicorn main:app --port 8000</code></pre>
+<p>→ <strong>http://localhost:8000</strong></p>
+
+<h2>4. 프로젝트 구조</h2>
+
+<pre><code>materials-data-portal/
+├── src/                      # Next.js 웹 포털
+│   ├── app/
+│   │   ├── page.tsx          # 홈 (AI 검색)
+│   │   ├── agent/            # Agent 페이지
+│   │   ├── lab/              # Lab 페이지 (Multi-Agent)
+│   │   ├── synthesis/        # 합성 데이터베이스
+│   │   └── api/              # API Routes
+│   ├── components/           # React 컴포넌트
+│   ├── lib/                  # 유틸리티
+│   └── data/                 # 정적 데이터
+│
+├── python-server/            # Python 계산 서버
+│   ├── main.py               # FastAPI 서버
+│   └── requirements.txt      # Python 의존성
+│
+├── mcp-server/               # MCP 서버 (Claude Code용)
+│
+├── docs/                     # 문서
+├── .env.local                # 환경 변수 (직접 생성)
+└── package.json              # Node.js 설정</code></pre>
+
+<h2>5. 기능별 필요 설정</h2>
+
+<table>
+  <tr>
+    <th>기능</th>
+    <th>필요 API 키</th>
+    <th>Python 서버</th>
+  </tr>
+  <tr>
+    <td>기본 검색 (홈)</td>
+    <td>OPENAI, MP</td>
+    <td>불필요</td>
+  </tr>
+  <tr>
+    <td>Lab 페이지</td>
+    <td>OPENAI, MP</td>
+    <td>선택 (Compute Agent용)</td>
+  </tr>
+  <tr>
+    <td>MLIP 계산</td>
+    <td>MP</td>
+    <td><strong>필수</strong></td>
+  </tr>
+</table>
+
+<h2>6. 트러블슈팅</h2>
+
+<div class="warning">
+  <strong>"Module not found" 오류</strong>
+  <pre><code>npm install              # Node.js 모듈
+pip install -r requirements.txt  # Python 모듈</code></pre>
+</div>
+
+<div class="warning">
+  <strong>"OPENAI_API_KEY not found"</strong>
+  <pre><code># .env.local 파일이 프로젝트 루트에 있는지 확인
+# 파일 내용 확인
+cat .env.local</code></pre>
+</div>
+
+<div class="warning">
+  <strong>"계산 서버 연결 오류"</strong>
+  <pre><code># Python 서버가 실행 중인지 확인
+curl http://localhost:8000/health</code></pre>
+</div>
+
+<div class="warning">
+  <strong>"MP API 401 Unauthorized"</strong>
+  <pre><code># API 키 환경변수 확인
+echo $env:MP_API_KEY  # PowerShell
+echo $MP_API_KEY      # Bash</code></pre>
+</div>
+
+<div class="warning">
+  <strong>"UPET not available"</strong>
+  <pre><code>conda activate materialsPortal
+pip install upet</code></pre>
+</div>
+
+<div class="warning">
+  <strong>Conda 환경 문제</strong>
+  <pre><code># 환경 삭제 후 재생성
+conda remove -n materialsPortal --all
+conda create -n materialsPortal python=3.10 -y
+conda activate materialsPortal
+pip install -r python-server/requirements.txt</code></pre>
+</div>
+
+<h2>7. 빠른 시작 요약</h2>
+
+<div class="success">
+<pre><code># 1. 클론
+git clone https://github.com/aslheeseung/materials-data-portal.git
+cd materials-data-portal
+
+# 2. Node.js 설치
+npm install
+
+# 3. 환경 변수 (.env.local 생성)
+echo "OPENAI_API_KEY=sk-xxx" >> .env.local
+echo "MP_API_KEY=xxx" >> .env.local
+
+# 4. Python 환경
+conda create -n materialsPortal python=3.10 -y
+conda activate materialsPortal
+pip install -r python-server/requirements.txt
+
+# 5. 실행 (터미널 2개)
+# 터미널 1: npm run dev
+# 터미널 2: conda activate materialsPortal && cd python-server && python -m uvicorn main:app --port 8000</code></pre>
+</div>
+
+<hr style="margin: 40px 0; border: none; border-top: 2px solid #e2e8f0;">
+<p style="text-align: center; color: #718096;">
+  <strong>GitHub:</strong> <a href="https://github.com/aslheeseung/materials-data-portal">https://github.com/aslheeseung/materials-data-portal</a>
+</p>
+
+</body>
+</html>
