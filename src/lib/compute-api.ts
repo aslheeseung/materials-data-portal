@@ -274,3 +274,195 @@ export async function checkComputeServer(): Promise<boolean> {
     return false
   }
 }
+
+
+// ============ MLIP (UPET) Functions ============
+
+interface MLIPEnergyResult {
+  success: boolean
+  formula: string
+  n_atoms: number
+  total_energy_eV: number
+  energy_per_atom_eV: number
+  max_force_eV_A: number
+  model: string
+  note: string
+}
+
+interface MLIPFormationEnergyResult {
+  success: boolean
+  formula: string
+  n_atoms: number
+  total_energy_eV: number
+  reference_energy_eV: number
+  formation_energy_eV: number
+  formation_energy_per_atom_eV: number
+  stability_estimate: string
+  model: string
+  note: string
+  error?: string
+}
+
+interface MLIPRelaxResult {
+  success: boolean
+  converged: boolean
+  n_steps: number
+  formula: string
+  initial_energy_eV: number
+  final_energy_eV: number
+  energy_change_eV: number
+  max_force_eV_A: number
+  lattice: {
+    a: number
+    b: number
+    c: number
+    alpha: number
+    beta: number
+    gamma: number
+    volume: number
+  }
+  relaxed_cif: string
+  model: string
+}
+
+interface MLIPStatusResult {
+  available: boolean
+  model?: string
+  version?: string
+  theory_level?: string
+  capabilities?: string[]
+  message?: string
+  install_command?: string
+}
+
+export async function checkMLIPStatus(): Promise<MLIPStatusResult> {
+  try {
+    const response = await fetch(`${COMPUTE_API}/mlip/status`)
+    if (!response.ok) {
+      return { available: false, message: 'MLIP endpoint not available' }
+    }
+    return await response.json()
+  } catch {
+    return { available: false, message: 'Compute server not running' }
+  }
+}
+
+export async function calculateEnergy(materialId: string): Promise<string> {
+  try {
+    const response = await fetch(`${COMPUTE_API}/mlip/energy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ material_id: materialId }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      return `에너지 계산 오류: ${error.detail || response.statusText}`
+    }
+
+    const result = await response.json() as MLIPEnergyResult
+    return [
+      `## ⚡ MLIP 에너지 계산: ${result.formula}`,
+      '',
+      `### 결과`,
+      `- 총 에너지: **${result.total_energy_eV} eV**`,
+      `- 원자당 에너지: **${result.energy_per_atom_eV} eV/atom**`,
+      `- 원자 수: ${result.n_atoms}`,
+      `- 최대 힘: ${result.max_force_eV_A} eV/Å`,
+      '',
+      `### 모델 정보`,
+      `- 사용 모델: ${result.model}`,
+      '',
+      `> ${result.note}`,
+    ].join('\n')
+  } catch (error) {
+    return `MLIP 서버 연결 오류: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function calculateFormationEnergy(materialId: string): Promise<string> {
+  try {
+    const response = await fetch(`${COMPUTE_API}/mlip/formation-energy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ material_id: materialId }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      return `Formation energy 계산 오류: ${error.detail || response.statusText}`
+    }
+
+    const result = await response.json() as MLIPFormationEnergyResult
+
+    if (!result.success) {
+      return `Formation energy 계산 실패: ${result.error}`
+    }
+
+    const stabilityEmoji = result.stability_estimate === 'likely stable' ? '✅' :
+                          result.stability_estimate === 'metastable' ? '⚠️' : '❌'
+
+    return [
+      `## 🔬 Formation Energy: ${result.formula}`,
+      '',
+      `### 에너지 분해`,
+      `- 화합물 에너지: ${result.total_energy_eV} eV`,
+      `- 원소 기준 에너지: ${result.reference_energy_eV} eV`,
+      `- **Formation Energy: ${result.formation_energy_eV} eV**`,
+      `- **원자당: ${result.formation_energy_per_atom_eV} eV/atom**`,
+      '',
+      `### 안정성 예측`,
+      `${stabilityEmoji} **${result.stability_estimate}**`,
+      '',
+      result.formation_energy_per_atom_eV < 0
+        ? '> 음의 formation energy = 발열 반응, 열역학적으로 유리'
+        : '> 양의 formation energy = 흡열 반응, 분해 가능성 있음',
+      '',
+      `### 모델 정보`,
+      `- ${result.model}`,
+    ].join('\n')
+  } catch (error) {
+    return `MLIP 서버 연결 오류: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function relaxStructure(materialId: string): Promise<string> {
+  try {
+    const response = await fetch(`${COMPUTE_API}/mlip/relax`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ material_id: materialId, fmax: 0.05, steps: 100 }),
+    })
+
+    if (!response.ok) {
+      const error = await response.json()
+      return `구조 최적화 오류: ${error.detail || response.statusText}`
+    }
+
+    const result = await response.json() as MLIPRelaxResult
+
+    return [
+      `## 🔄 구조 최적화 (Relaxation): ${result.formula}`,
+      '',
+      `### 수렴 정보`,
+      `- 수렴 여부: ${result.converged ? '✅ 수렴됨' : '⚠️ 미수렴'}`,
+      `- 최적화 단계: ${result.n_steps} steps`,
+      '',
+      `### 에너지 변화`,
+      `- 초기 에너지: ${result.initial_energy_eV} eV`,
+      `- 최종 에너지: ${result.final_energy_eV} eV`,
+      `- 에너지 변화: **${result.energy_change_eV} eV**`,
+      `- 최대 힘: ${result.max_force_eV_A} eV/Å`,
+      '',
+      `### 최적화된 격자`,
+      `- a = ${result.lattice.a} Å, b = ${result.lattice.b} Å, c = ${result.lattice.c} Å`,
+      `- α = ${result.lattice.alpha}°, β = ${result.lattice.beta}°, γ = ${result.lattice.gamma}°`,
+      `- 부피: ${result.lattice.volume} Å³`,
+      '',
+      `### 모델`,
+      `- ${result.model}`,
+    ].join('\n')
+  } catch (error) {
+    return `MLIP 서버 연결 오류: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}

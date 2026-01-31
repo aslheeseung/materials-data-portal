@@ -1,0 +1,14 @@
+# MCP Server (not needed for web deployment)
+mcp-server/
+
+# Large data files
+*.xz
+
+# Docs
+docs/
+
+# Scripts
+scripts/
+
+# PDF
+*.pdf

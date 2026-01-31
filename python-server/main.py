@@ -1,17 +1,18 @@
 """
 Materials Data Portal - Python Computation Server
-Provides Pymatgen and ASE based computational tools
+Provides Pymatgen, ASE, and UPET (MLIP) based computational tools
 """
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 import tempfile
 import os
+import numpy as np
 
 # Pymatgen imports
-from pymatgen.core import Structure, Element
+from pymatgen.core import Structure, Element, Composition
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 from pymatgen.analysis.local_env import CrystalNN
 from pymatgen.analysis.phase_diagram import PhaseDiagram
@@ -24,6 +25,34 @@ from mp_api.client import MPRester
 
 # ASE imports
 from ase.io import read, write
+from ase.optimize import BFGS
+try:
+    from ase.filters import ExpCellFilter  # ASE >= 3.23
+except ImportError:
+    from ase.constraints import ExpCellFilter  # ASE < 3.23
+
+# UPET (MLIP) - lazy loading to avoid startup delay
+_upet_calculator = None
+
+def get_upet_calculator(device: str = "cpu"):
+    """Lazy load UPET calculator"""
+    global _upet_calculator
+    if _upet_calculator is None:
+        try:
+            from upet.calculator import UPETCalculator
+            _upet_calculator = UPETCalculator(
+                model="pet-mad-s",  # Fast and universal
+                version="1.0.2",
+                device=device
+            )
+            print("✓ UPET Calculator loaded successfully")
+        except ImportError:
+            print("⚠ UPET not installed. Run: pip install upet")
+            return None
+        except Exception as e:
+            print(f"⚠ UPET loading failed: {e}")
+            return None
+    return _upet_calculator
 
 app = FastAPI(
     title="Materials Computation API",
@@ -59,6 +88,22 @@ class ConversionInput(BaseModel):
 
 class PhaseDiagramInput(BaseModel):
     elements: List[str]
+
+class EnergyInput(BaseModel):
+    material_id: Optional[str] = None
+    cif_string: Optional[str] = None
+    structure_dict: Optional[dict] = None
+
+class RelaxInput(BaseModel):
+    material_id: Optional[str] = None
+    cif_string: Optional[str] = None
+    fmax: float = 0.05  # Force convergence threshold
+    steps: int = 100    # Max optimization steps
+
+class FormationEnergyInput(BaseModel):
+    material_id: Optional[str] = None
+    cif_string: Optional[str] = None
+    elements_reference: Optional[dict] = None  # Custom reference energies
 
 
 # ============ Structure Analysis ============
@@ -312,15 +357,245 @@ async def get_element_info(symbol: str):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+# ============ UPET (MLIP) Calculations ============
+
+# Reference energies per atom for elements (PBEsol, approximate)
+ELEMENT_REFERENCE_ENERGIES = {
+    "Li": -1.90, "Na": -1.31, "K": -1.11,
+    "Be": -3.76, "Mg": -1.60, "Ca": -2.00,
+    "Sc": -6.33, "Ti": -7.89, "V": -9.08, "Cr": -9.65, "Mn": -9.03,
+    "Fe": -8.31, "Co": -7.11, "Ni": -5.78, "Cu": -4.10, "Zn": -1.27,
+    "Y": -6.46, "Zr": -8.55, "Nb": -10.09, "Mo": -10.94, "Ru": -9.27,
+    "Rh": -7.36, "Pd": -5.38, "Ag": -2.83, "Cd": -0.90,
+    "Hf": -9.96, "Ta": -11.85, "W": -12.96, "Re": -12.44, "Os": -11.23,
+    "Ir": -8.86, "Pt": -6.05, "Au": -3.27,
+    "Al": -3.75, "Si": -5.43, "Ga": -3.03, "Ge": -4.62,
+    "O": -4.95, "S": -4.13, "N": -8.34, "P": -5.41,
+    "F": -1.91, "Cl": -1.80, "Br": -1.63, "I": -1.52,
+}
+
+
+def get_structure_from_input(material_id: str = None, cif_string: str = None) -> Structure:
+    """Helper to get structure from various inputs"""
+    if material_id:
+        with MPRester(MP_API_KEY) as mpr:
+            docs = mpr.materials.summary.search(material_ids=[material_id], fields=["structure"])
+            if not docs:
+                raise ValueError(f"Material {material_id} not found")
+            return docs[0].structure
+    elif cif_string:
+        parser = CifParser.from_str(cif_string)
+        return parser.get_structures()[0]
+    else:
+        raise ValueError("Either material_id or cif_string required")
+
+
+@app.post("/mlip/energy")
+async def calculate_energy(data: EnergyInput):
+    """Calculate total energy using UPET MLIP"""
+    try:
+        calc = get_upet_calculator()
+        if calc is None:
+            raise HTTPException(status_code=503, detail="UPET not available. Install with: pip install upet")
+
+        # Get structure
+        structure = get_structure_from_input(data.material_id, data.cif_string)
+
+        # Convert to ASE atoms
+        atoms = AseAtomsAdaptor.get_atoms(structure)
+        atoms.calc = calc
+
+        # Calculate energy
+        energy = atoms.get_potential_energy()
+        forces = atoms.get_forces()
+
+        # Per-atom values
+        n_atoms = len(atoms)
+        energy_per_atom = energy / n_atoms
+        max_force = float(np.max(np.abs(forces)))
+
+        return {
+            "success": True,
+            "formula": structure.composition.reduced_formula,
+            "n_atoms": n_atoms,
+            "total_energy_eV": round(float(energy), 6),
+            "energy_per_atom_eV": round(energy_per_atom, 6),
+            "max_force_eV_A": round(max_force, 6),
+            "model": "PET-MAD-S (PBEsol level)",
+            "note": "Energy calculated using UPET machine learning potential"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/mlip/formation-energy")
+async def calculate_formation_energy(data: FormationEnergyInput):
+    """Calculate formation energy using UPET MLIP"""
+    try:
+        calc = get_upet_calculator()
+        if calc is None:
+            raise HTTPException(status_code=503, detail="UPET not available")
+
+        # Get structure
+        structure = get_structure_from_input(data.material_id, data.cif_string)
+
+        # Convert to ASE and calculate energy
+        atoms = AseAtomsAdaptor.get_atoms(structure)
+        atoms.calc = calc
+        total_energy = atoms.get_potential_energy()
+
+        # Get composition
+        comp = structure.composition
+        n_atoms = len(atoms)
+
+        # Calculate reference energy
+        ref_energies = data.elements_reference or ELEMENT_REFERENCE_ENERGIES
+        reference_energy = 0.0
+        missing_refs = []
+
+        for el, amt in comp.as_dict().items():
+            if el in ref_energies:
+                reference_energy += ref_energies[el] * amt
+            else:
+                missing_refs.append(el)
+
+        if missing_refs:
+            return {
+                "success": False,
+                "error": f"Missing reference energies for: {', '.join(missing_refs)}",
+                "available_elements": list(ref_energies.keys())
+            }
+
+        # Formation energy = E_compound - sum(E_elements)
+        formation_energy = total_energy - reference_energy
+        formation_energy_per_atom = formation_energy / n_atoms
+
+        # Stability estimate (rough heuristic)
+        stability = "likely stable" if formation_energy_per_atom < -0.1 else \
+                   "metastable" if formation_energy_per_atom < 0.1 else \
+                   "likely unstable"
+
+        return {
+            "success": True,
+            "formula": comp.reduced_formula,
+            "n_atoms": n_atoms,
+            "total_energy_eV": round(float(total_energy), 6),
+            "reference_energy_eV": round(float(reference_energy), 6),
+            "formation_energy_eV": round(float(formation_energy), 6),
+            "formation_energy_per_atom_eV": round(formation_energy_per_atom, 6),
+            "stability_estimate": stability,
+            "model": "PET-MAD-S (PBEsol level)",
+            "note": "Formation energy = E_compound - Σ(E_elements). Negative = exothermic formation."
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/mlip/relax")
+async def relax_structure(data: RelaxInput):
+    """Relax structure using UPET MLIP"""
+    try:
+        calc = get_upet_calculator()
+        if calc is None:
+            raise HTTPException(status_code=503, detail="UPET not available")
+
+        # Get structure
+        structure = get_structure_from_input(data.material_id, data.cif_string)
+
+        # Convert to ASE
+        atoms = AseAtomsAdaptor.get_atoms(structure)
+        atoms.calc = calc
+
+        # Initial energy
+        initial_energy = atoms.get_potential_energy()
+
+        # Relax with cell optimization
+        ecf = ExpCellFilter(atoms)
+        opt = BFGS(ecf, logfile=None)
+        converged = opt.run(fmax=data.fmax, steps=data.steps)
+
+        # Final energy
+        final_energy = atoms.get_potential_energy()
+        final_forces = atoms.get_forces()
+
+        # Convert back to pymatgen
+        relaxed_structure = AseAtomsAdaptor.get_structure(atoms)
+
+        # Get CIF of relaxed structure
+        cif_writer = CifWriter(relaxed_structure)
+        relaxed_cif = str(cif_writer)
+
+        return {
+            "success": True,
+            "converged": converged,
+            "n_steps": opt.nsteps,
+            "formula": relaxed_structure.composition.reduced_formula,
+            "initial_energy_eV": round(float(initial_energy), 6),
+            "final_energy_eV": round(float(final_energy), 6),
+            "energy_change_eV": round(float(final_energy - initial_energy), 6),
+            "max_force_eV_A": round(float(np.max(np.abs(final_forces))), 6),
+            "lattice": {
+                "a": round(relaxed_structure.lattice.a, 4),
+                "b": round(relaxed_structure.lattice.b, 4),
+                "c": round(relaxed_structure.lattice.c, 4),
+                "alpha": round(relaxed_structure.lattice.alpha, 2),
+                "beta": round(relaxed_structure.lattice.beta, 2),
+                "gamma": round(relaxed_structure.lattice.gamma, 2),
+                "volume": round(relaxed_structure.lattice.volume, 4)
+            },
+            "relaxed_cif": relaxed_cif,
+            "model": "PET-MAD-S (PBEsol level)"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/mlip/status")
+async def mlip_status():
+    """Check MLIP availability and status"""
+    calc = get_upet_calculator()
+    if calc is None:
+        return {
+            "available": False,
+            "message": "UPET not installed or failed to load",
+            "install_command": "pip install upet"
+        }
+    return {
+        "available": True,
+        "model": "PET-MAD-S",
+        "version": "1.0.2",
+        "theory_level": "PBEsol",
+        "capabilities": [
+            "Energy calculation",
+            "Force calculation",
+            "Formation energy",
+            "Structure relaxation"
+        ]
+    }
+
+
 # ============ Health Check ============
 
 @app.get("/health")
 async def health_check():
+    # Check UPET availability
+    upet_available = get_upet_calculator() is not None
+
     return {
         "status": "healthy",
         "pymatgen": "2024.1.26",
         "ase": "3.22.1",
-        "mp_api": "0.39.5"
+        "mp_api": "0.39.5",
+        "upet_mlip": upet_available
     }
 
 

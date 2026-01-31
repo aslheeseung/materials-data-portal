@@ -52,6 +52,14 @@ export default function Home() {
                 </svg>
                 AI Agent
               </Link>
+              <Link
+                href="/lab"
+                className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-6 py-3 rounded-lg transition-all shadow-lg"
+              >
+                <span>🤖</span>
+                Lab
+                <span className="text-xs bg-white/20 px-1.5 py-0.5 rounded">NEW</span>
+              </Link>
             </div>
           </div>
 

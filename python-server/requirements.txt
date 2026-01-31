@@ -4,3 +4,7 @@ pymatgen==2024.1.26
 ase==3.22.1
 mp-api==0.39.5
 python-multipart==0.0.6
+numpy>=1.21.0
+
+# MLIP - Universal Machine Learning Potential
+upet>=0.1.0
