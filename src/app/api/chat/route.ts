@@ -30,9 +30,12 @@ import {
   getElementInfo,
 } from '@/lib/compute-api'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// OpenAI client - initialized lazily at runtime
+function getOpenAI() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+}
 
 const tools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
   // Materials Project Tools
@@ -441,6 +444,7 @@ export async function POST(request: NextRequest) {
 Computational 기능은 Python 서버(port 8000)가 실행 중이어야 합니다.`,
     }
 
+    const openai = getOpenAI()
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [systemMessage, ...messages],

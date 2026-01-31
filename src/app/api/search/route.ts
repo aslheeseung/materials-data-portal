@@ -24,9 +24,12 @@ import {
   getCodEntry,
 } from '@/lib/cod-api'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// OpenAI client - initialized lazily at runtime
+function getOpenAI() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+}
 
 const searchTools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
   // Materials Project Tools
@@ -353,6 +356,7 @@ export async function POST(request: NextRequest) {
 ${langInstruction}`,
     }
 
+    const openai = getOpenAI()
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [systemMessage, ...messages],

@@ -9,9 +9,12 @@ import {
   checkComputeServer,
 } from '@/lib/compute-api'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+// OpenAI client - initialized lazily at runtime
+function getOpenAI() {
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  })
+}
 
 const computeTools: OpenAI.Chat.Completions.ChatCompletionTool[] = [
   {
@@ -180,6 +183,7 @@ Python server (port 8000) is required.`,
       return NextResponse.json({ message })
     }
 
+    const openai = getOpenAI()
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [systemMessage, ...messages],
