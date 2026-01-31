@@ -457,8 +457,9 @@ Computational 기능은 Python 서버(port 8000)가 실행 중이어야 합니�
 
       const toolResults = await Promise.all(
         assistantMessage.tool_calls.map(async (toolCall) => {
-          const args = JSON.parse(toolCall.function.arguments)
-          const result = await executeFunction(toolCall.function.name, args)
+          const func = (toolCall as { function: { name: string; arguments: string } }).function
+          const args = JSON.parse(func.arguments)
+          const result = await executeFunction(func.name, args)
           return {
             role: 'tool' as const,
             tool_call_id: toolCall.id,

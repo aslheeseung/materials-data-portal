@@ -368,8 +368,9 @@ ${langInstruction}`,
 
       const toolResults = await Promise.all(
         assistantMessage.tool_calls.map(async (toolCall) => {
-          const args = JSON.parse(toolCall.function.arguments)
-          const result = await executeSearchFunction(toolCall.function.name, args)
+          const func = (toolCall as { function: { name: string; arguments: string } }).function
+          const args = JSON.parse(func.arguments)
+          const result = await executeSearchFunction(func.name, args)
           return {
             role: 'tool' as const,
             tool_call_id: toolCall.id,

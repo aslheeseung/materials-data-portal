@@ -51,5 +51,9 @@ ENV/
 docs/.bkit-memory.json
 docs/.pdca-status.json
 
+# Large data files (raw Ceder dataset)
+mcp-server/data/solid-state.json
+mcp-server/data/sol-gel.json
+
 # Claude settings
 .claude/

@@ -8,17 +8,26 @@ interface Message {
   content: string
 }
 
+interface ChatMode {
+  id: string
+  label: string
+  endpoint: string
+  placeholder: string
+  suggestions: string[]
+}
+
 interface ChatPanelProps {
   title: string
   subtitle: string
   endpoint: string
   placeholder: string
   suggestions: string[]
-  accentColor: 'indigo' | 'emerald'
+  accentColor: 'indigo' | 'emerald' | 'purple'
   sendButtonText: string
   askQuestionText: string
   errorText: string
   language: string
+  modes?: ChatMode[]
 }
 
 function ChatPanel({
@@ -32,11 +41,19 @@ function ChatPanel({
   askQuestionText,
   errorText,
   language,
+  modes,
 }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [activeMode, setActiveMode] = useState(modes?.[0]?.id || '')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Get current mode settings
+  const currentMode = modes?.find(m => m.id === activeMode)
+  const currentEndpoint = currentMode?.endpoint || endpoint
+  const currentPlaceholder = currentMode?.placeholder || placeholder
+  const currentSuggestions = currentMode?.suggestions || suggestions
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -55,7 +72,7 @@ function ChatPanel({
     setIsLoading(true)
 
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch(currentEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -120,8 +137,30 @@ function ChatPanel({
     <div className={`flex flex-col h-[650px] bg-gray-900 rounded-xl overflow-hidden border ${borderColor}`}>
       {/* Header */}
       <div className={`${bgColor} px-4 py-3`}>
-        <h2 className="text-white font-semibold">{title}</h2>
-        <p className="text-white/70 text-sm">{subtitle}</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-white font-semibold">{title}</h2>
+            <p className="text-white/70 text-sm">{subtitle}</p>
+          </div>
+        </div>
+        {/* Mode Tabs */}
+        {modes && modes.length > 1 && (
+          <div className="flex gap-1 mt-2">
+            {modes.map((mode) => (
+              <button
+                key={mode.id}
+                onClick={() => setActiveMode(mode.id)}
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  activeMode === mode.id
+                    ? 'bg-white/20 text-white'
+                    : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white/80'
+                }`}
+              >
+                {mode.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Messages */}
@@ -130,7 +169,7 @@ function ChatPanel({
           <div className="text-center text-gray-500 mt-4">
             <p className="mb-4 text-sm">{askQuestionText}</p>
             <div className="space-y-2 text-sm">
-              {suggestions.map((suggestion, index) => (
+              {currentSuggestions.map((suggestion, index) => (
                 <button
                   key={index}
                   onClick={() => setInput(suggestion)}
@@ -183,7 +222,7 @@ function ChatPanel({
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={placeholder}
+            placeholder={currentPlaceholder}
             className={`flex-1 px-3 py-2 bg-gray-800 text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 ${ringColor} focus:border-transparent text-sm`}
             disabled={isLoading}
           />
@@ -203,6 +242,39 @@ function ChatPanel({
 export default function DualChatInterface() {
   const { language, t } = useLanguage()
 
+  // Search panel modes
+  const searchModes: ChatMode[] = [
+    {
+      id: 'materials',
+      label: t('materialsMode') || 'Materials',
+      endpoint: '/api/search',
+      placeholder: t('searchPlaceholder'),
+      suggestions: t('searchSuggestions'),
+    },
+    {
+      id: 'synthesis',
+      label: t('synthesisMode') || 'Synthesis',
+      endpoint: '/api/synthesis',
+      placeholder: t('synthesisPlaceholder') || 'Search synthesis recipes... (e.g., LiCoO2)',
+      suggestions: t('synthesisSuggestions') || [
+        'LiCoO2 합성 레시피 찾아줘',
+        'Li2CO3를 전구체로 사용하는 합성',
+        '800-1000°C 온도 범위 합성',
+      ],
+    },
+    {
+      id: 'recipe',
+      label: t('recipeMode') || 'Recipe ✨',
+      endpoint: '/api/recipe',
+      placeholder: t('recipePlaceholder') || 'Enter target material... (e.g., IrRuNi)',
+      suggestions: t('recipeSuggestions') || [
+        'IrRuNi 합금 합성하고 싶어',
+        'LiCoO2 배터리 양극재 만들기',
+        'BaTiO3 세라믹 합성 방법',
+      ],
+    },
+  ]
+
   return (
     <div className="grid md:grid-cols-2 gap-6">
       {/* Left Panel - Search */}
@@ -217,6 +289,7 @@ export default function DualChatInterface() {
         askQuestionText={t('askQuestion')}
         errorText={t('error')}
         language={language}
+        modes={searchModes}
       />
 
       {/* Right Panel - Compute */}

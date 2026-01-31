@@ -35,6 +35,26 @@ export interface Translations {
   formatConversionDesc: string
   elementInfo: string
   elementInfoDesc: string
+  // Synthesis
+  synthesis: string
+  synthesisDesc: string
+  precursors: string
+  searchFormula: string
+  searchPrecursor: string
+  temperature: string
+  allTypes: string
+  solidState: string
+  solGel: string
+  noResults: string
+  foundRecipes: string
+  // Agent modes
+  materialsMode: string
+  synthesisMode: string
+  synthesisPlaceholder: string
+  synthesisSuggestions: string[]
+  recipeMode: string
+  recipePlaceholder: string
+  recipeSuggestions: string[]
 }
 
 export const translations: Record<Language, Translations> = {
@@ -94,6 +114,34 @@ export const translations: Record<Language, Translations> = {
     formatConversionDesc: 'CIF↔POSCAR↔XYZ',
     elementInfo: '원소 정보',
     elementInfoDesc: '전기음성도, 산화수',
+    // Synthesis
+    synthesis: '합성 레시피',
+    synthesisDesc: '재료 합성 조건 검색',
+    precursors: '전구체',
+    searchFormula: '재료명 검색',
+    searchPrecursor: '전구체로 검색',
+    temperature: '온도',
+    allTypes: '전체',
+    solidState: '고상합성',
+    solGel: '솔-겔',
+    noResults: '검색 결과가 없습니다',
+    foundRecipes: '개의 레시피 발견',
+    // Agent modes
+    materialsMode: 'Materials',
+    synthesisMode: 'Synthesis',
+    synthesisPlaceholder: '합성 레시피 검색... (예: LiCoO2 합성법)',
+    synthesisSuggestions: [
+      'LiCoO2 합성 레시피 찾아줘',
+      'Li2CO3를 전구체로 사용하는 합성',
+      '800-1000°C 온도 범위 합성',
+    ],
+    recipeMode: 'Recipe ✨',
+    recipePlaceholder: '합성할 재료 입력... (예: IrRuNi)',
+    recipeSuggestions: [
+      'IrRuNi 합금 합성하고 싶어',
+      'LiCoO2 배터리 양극재 만들기',
+      'BaTiO3 세라믹 합성 방법',
+    ],
   },
   en: {
     // Header
@@ -151,6 +199,34 @@ export const translations: Record<Language, Translations> = {
     formatConversionDesc: 'CIF↔POSCAR↔XYZ',
     elementInfo: 'Element Info',
     elementInfoDesc: 'Electronegativity, oxidation',
+    // Synthesis
+    synthesis: 'Synthesis Recipes',
+    synthesisDesc: 'Search synthesis conditions',
+    precursors: 'Precursors',
+    searchFormula: 'Search by formula',
+    searchPrecursor: 'Search by precursor',
+    temperature: 'Temperature',
+    allTypes: 'All',
+    solidState: 'Solid-State',
+    solGel: 'Sol-Gel',
+    noResults: 'No results found',
+    foundRecipes: 'recipes found',
+    // Agent modes
+    materialsMode: 'Materials',
+    synthesisMode: 'Synthesis',
+    synthesisPlaceholder: 'Search synthesis recipes... (e.g., LiCoO2 synthesis)',
+    synthesisSuggestions: [
+      'Find LiCoO2 synthesis recipes',
+      'Syntheses using Li2CO3 as precursor',
+      'Synthesis at 800-1000°C temperature',
+    ],
+    recipeMode: 'Recipe ✨',
+    recipePlaceholder: 'Enter target material... (e.g., IrRuNi)',
+    recipeSuggestions: [
+      'I want to synthesize IrRuNi alloy',
+      'Make LiCoO2 battery cathode',
+      'BaTiO3 ceramic synthesis method',
+    ],
   },
 }
 
