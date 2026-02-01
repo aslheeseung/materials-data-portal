@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Materials Science Agentic AI Framework</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #fff;
+    }
+    h1 { color: #0d9488; border-bottom: 3px solid #14b8a6; padding-bottom: 10px; margin-bottom: 10px; }
+    .subtitle { text-align: center; color: #718096; margin-bottom: 30px; font-size: 1.1em; }
+    h2 { color: #0f766e; margin-top: 40px; margin-bottom: 20px; border-left: 4px solid #14b8a6; padding-left: 15px; }
+    h3 { color: #115e59; margin-top: 25px; margin-bottom: 15px; }
+    p { margin-bottom: 15px; }
+    ul, ol { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; }
+    code { background: #ccfbf1; padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.9em; color: #0f766e; }
+    pre { background: #1a202c; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 15px 0; font-size: 0.85em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+    th { background: #0d9488; color: white; }
+    tr:nth-child(even) { background: #f0fdfa; }
+    .skill-box { background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 20px; margin: 15px 0; }
+    .skill-box h4 { color: #0f766e; margin-bottom: 10px; font-size: 1.1em; }
+    .skill-box ul { margin-left: 20px; }
+    .diagram { background: #f7fafc; padding: 20px; border-radius: 8px; font-family: monospace; white-space: pre; overflow-x: auto; margin: 20px 0; font-size: 0.8em; line-height: 1.4; }
+    .highlight { background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0; }
+    .info { background: #ccfbf1; padding: 15px; border-radius: 8px; border-left: 4px solid #14b8a6; margin: 20px 0; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+    @media print {
+      body { padding: 20px; font-size: 11pt; }
+      h2 { page-break-before: always; }
+      h2:first-of-type { page-break-before: avoid; }
+      pre { white-space: pre-wrap; font-size: 9pt; }
+      .skill-box { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<h1 style="text-align: center;">Materials Science Agentic AI</h1>
+<p class="subtitle">"MatSci Agent Framework" - 재료 과학 연구를 위한 AI 에이전트 시스템</p>
+<p style="text-align: center; color: #718096;">Concept Document | 2026-02-01</p>
+
+<h2>1. 개요</h2>
+
+<div class="info">
+  <strong>MatSci Agent</strong>는 재료 과학 연구의 전 과정을 지원하는 Agentic AI 시스템입니다.
+  데이터베이스 검색부터 계산, 설계, 합성, 분석까지 연구 워크플로우 전체를 자동화합니다.
+</div>
+
+<h3>핵심 가치</h3>
+<ul>
+  <li><strong>통합 연구 환경</strong> - 분산된 도구들을 하나의 인터페이스로</li>
+  <li><strong>자동화된 워크플로우</strong> - 반복 작업 자동화, 연구자는 의사결정에 집중</li>
+  <li><strong>지능형 추천</strong> - 다음 실험/계산 자동 제안</li>
+  <li><strong>지식 축적</strong> - 연구 히스토리 학습 및 활용</li>
+</ul>
+
+<h2>2. 시스템 아키텍처</h2>
+
+<div class="diagram">
+┌─────────────────────────────────────────────────────────────────────┐
+│                     MatSci Agent Framework                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                      │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │                    🧠 Master Agent                           │    │
+│  │           연구 목표 이해 → 전략 수립 → 워크플로우 조율          │    │
+│  └──────────────────────────┬──────────────────────────────────┘    │
+│                             │                                        │
+│       ┌─────────┬───────────┼───────────┬─────────┬─────────┐       │
+│       ▼         ▼           ▼           ▼         ▼         ▼       │
+│  ┌────────┐┌────────┐┌──────────┐┌─────────┐┌────────┐┌────────┐   │
+│  │Discovery││Compute ││  Design  ││Synthesis││Analysis││  Lab   │   │
+│  │ Agent  ││ Agent  ││  Agent   ││  Agent  ││ Agent  ││ Agent  │   │
+│  └────────┘└────────┘└──────────┘└─────────┘└────────┘└────────┘   │
+│                                                                      │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │                    📚 Knowledge Layer                        │    │
+│  │    Vector DB (RAG) │ Research History │ Domain Ontology      │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+│                                                                      │
+│  ┌─────────────────────────────────────────────────────────────┐    │
+│  │                    🔧 Tool Layer                             │    │
+│  │  pymatgen │ ASE │ MLIP │ DFT │ Literature API │ Lab Systems  │    │
+│  └─────────────────────────────────────────────────────────────┘    │
+│                                                                      │
+└─────────────────────────────────────────────────────────────────────┘</div>
+
+<h2>3. Skill 카탈로그</h2>
+
+<div class="skill-box">
+  <h4>🔍 Discovery Skills - 탐색 및 검색</h4>
+  <table>
+    <tr><th>Skill</th><th>설명</th><th>데이터 소스</th></tr>
+    <tr><td><code>database_search</code></td><td>재료 데이터베이스 통합 검색</td><td>MP, ICSD, AFLOW, OQMD</td></tr>
+    <tr><td><code>literature_search</code></td><td>논문/특허 검색 및 요약</td><td>Semantic Scholar, arXiv</td></tr>
+    <tr><td><code>prior_art_check</code></td><td>선행 연구 및 특허 조사</td><td>Google Patents, USPTO</td></tr>
+    <tr><td><code>knowledge_graph</code></td><td>재료-특성-응용 연결 탐색</td><td>Custom Ontology</td></tr>
+  </table>
+</div>
+
+<div class="skill-box">
+  <h4>⚡ Computation Skills - 계산 및 시뮬레이션</h4>
+  <table>
+    <tr><th>Skill</th><th>설명</th><th>도구</th></tr>
+    <tr><td><code>mlip_energy</code></td><td>MLIP 에너지/힘 계산</td><td>UPET, M3GNet, CHGNet</td></tr>
+    <tr><td><code>dft_submit</code></td><td>DFT 계산 작업 제출</td><td>VASP, Quantum ESPRESSO</td></tr>
+    <tr><td><code>molecular_dynamics</code></td><td>MD 시뮬레이션</td><td>LAMMPS, ASE</td></tr>
+    <tr><td><code>phase_diagram</code></td><td>상평형도 생성</td><td>pymatgen PhaseDiagram</td></tr>
+    <tr><td><code>defect_calculation</code></td><td>결함 에너지 계산</td><td>pydefect, PyCDT</td></tr>
+    <tr><td><code>phonon_analysis</code></td><td>포논/열적 특성 계산</td><td>Phonopy</td></tr>
+  </table>
+</div>
+
+<div class="skill-box">
+  <h4>🎯 Design Skills - 재료 설계</h4>
+  <table>
+    <tr><th>Skill</th><th>설명</th><th>방법론</th></tr>
+    <tr><td><code>inverse_design</code></td><td>목표 특성 → 후보 재료</td><td>Generative Model, CGCNN</td></tr>
+    <tr><td><code>composition_opt</code></td><td>조성 최적화</td><td>Bayesian Opt, Genetic Algo</td></tr>
+    <tr><td><code>structure_predict</code></td><td>결정 구조 예측</td><td>USPEX, CALYPSO</td></tr>
+    <tr><td><code>alloy_design</code></td><td>합금 설계</td><td>CALPHAD, Cluster Expansion</td></tr>
+    <tr><td><code>doping_suggest</code></td><td>도핑 원소/농도 추천</td><td>Formation Energy Scan</td></tr>
+  </table>
+</div>
+
+<div class="skill-box">
+  <h4>🧪 Synthesis Skills - 합성 계획</h4>
+  <table>
+    <tr><th>Skill</th><th>설명</th><th>기능</th></tr>
+    <tr><td><code>recipe_search</code></td><td>합성 레시피 검색</td><td>Text-mined DB 검색</td></tr>
+    <tr><td><code>recipe_generate</code></td><td>합성 경로 자동 생성</td><td>규칙 기반 + LLM</td></tr>
+    <tr><td><code>precursor_select</code></td><td>전구체 선택</td><td>비용/가용성 최적화</td></tr>
+    <tr><td><code>condition_optimize</code></td><td>조건 최적화</td><td>온도/시간/분위기</td></tr>
+    <tr><td><code>scale_up_plan</code></td><td>스케일업 계획</td><td>Lab → Pilot → Production</td></tr>
+    <tr><td><code>safety_check</code></td><td>안전성 검토</td><td>MSDS, 독성 DB 연동</td></tr>
+  </table>
+</div>
+
+<div class="skill-box">
+  <h4>📊 Analysis Skills - 분석 및 해석</h4>
+  <table>
+    <tr><th>Skill</th><th>설명</th><th>출력</th></tr>
+    <tr><td><code>structure_analyze</code></td><td>구조 분석</td><td>대칭성, 결합, 배위수</td></tr>
+    <tr><td><code>stability_check</code></td><td>안정성 분석</td><td>E_hull, 분해 경로</td></tr>
+    <tr><td><code>xrd_predict</code></td><td>XRD 패턴 예측/매칭</td><td>Peak 위치, 강도</td></tr>
+    <tr><td><code>spectro_interpret</code></td><td>분광 해석</td><td>XPS, Raman, IR</td></tr>
+    <tr><td><code>property_correlate</code></td><td>구조-특성 상관분석</td><td>Feature importance</td></tr>
+    <tr><td><code>failure_analyze</code></td><td>실패 원인 분석</td><td>근본 원인 + 대안</td></tr>
+  </table>
+</div>
+
+<div class="skill-box">
+  <h4>🔬 Experiment Skills - 실험 연동</h4>
+  <table>
+    <tr><th>Skill</th><th>설명</th><th>연동</th></tr>
+    <tr><td><code>experiment_plan</code></td><td>실험 계획 수립</td><td>DOE (Design of Experiments)</td></tr>
+    <tr><td><code>hte_screen</code></td><td>고속 탐색 설계</td><td>HTE 자동화</td></tr>
+    <tr><td><code>lab_integrate</code></td><td>자동화 실험실 연동</td><td>A-Lab 스타일 로봇</td></tr>
+    <tr><td><code>result_interpret</code></td><td>실험 결과 해석</td><td>자동 리포트</td></tr>
+    <tr><td><code>next_experiment</code></td><td>다음 실험 추천</td><td>Active Learning</td></tr>
+  </table>
+</div>
+
+<div class="skill-box">
+  <h4>📝 Report Skills - 문서화</h4>
+  <table>
+    <tr><th>Skill</th><th>설명</th><th>출력 형식</th></tr>
+    <tr><td><code>summarize_findings</code></td><td>연구 결과 요약</td><td>구조화된 요약</td></tr>
+    <tr><td><code>compare_materials</code></td><td>재료 비교 분석</td><td>비교표, 레이더 차트</td></tr>
+    <tr><td><code>generate_report</code></td><td>기술 보고서 생성</td><td>PDF, Word</td></tr>
+    <tr><td><code>write_paper_draft</code></td><td>논문 초안 작성</td><td>LaTeX, Word</td></tr>
+    <tr><td><code>patent_search</code></td><td>특허 가능성 조사</td><td>선행기술 리포트</td></tr>
+  </table>
+</div>
+
+<h2>4. 연구 워크플로우</h2>
+
+<div class="diagram">
+┌──────────────────────────────────────────────────────────────────────┐
+│                     Materials Research Workflow                       │
+├──────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│   ┌─────────┐    ┌─────────┐    ┌──────────┐    ┌───────────┐        │
+│   │Discovery│ →  │ Design  │ →  │ Simulate │ →  │ Synthesize│        │
+│   │ (탐색)  │    │ (설계)  │    │  (계산)  │    │  (합성)   │        │
+│   └─────────┘    └─────────┘    └──────────┘    └─────┬─────┘        │
+│                                                       │               │
+│                                                       ▼               │
+│   ┌─────────────────────────────────────────────────────────┐        │
+│   │                    Characterize (특성화)                 │        │
+│   │         XRD │ SEM │ TEM │ XPS │ Electrochemistry        │        │
+│   └─────────────────────────────────┬───────────────────────┘        │
+│                                     │                                 │
+│                                     ▼                                 │
+│   ┌─────────────────────────────────────────────────────────┐        │
+│   │                     Optimize (최적화)                    │        │
+│   │              Active Learning → Next Iteration            │        │
+│   └─────────────────────────────────┬───────────────────────┘        │
+│                                     │                                 │
+│                    ┌────────────────┴────────────────┐                │
+│                    ▼                                 ▼                │
+│             [ 목표 달성 ]                    [ 재시도 필요 ]          │
+│                  │                                   │                │
+│                  ▼                                   │                │
+│          📄 Report & Publish              ───────────┘                │
+│                                          (Feedback Loop)              │
+│                                                                       │
+└──────────────────────────────────────────────────────────────────────┘</div>
+
+<h2>5. 사용 예시</h2>
+
+<h3>예시 1: 배터리 양극재 개발</h3>
+<pre><code>사용자: "LiFePO4보다 에너지 밀도가 높은 양극재를 찾아줘"
+
+Master Agent:
+├─→ Discovery Agent:
+│   └─ "고에너지 밀도 양극재 논문 검색... LiNiMnCoO2, LiNiCoAlO2 발견"
+│
+├─→ Compute Agent:
+│   └─ "후보 재료 MLIP 에너지 계산... 안정성 확인"
+│
+├─→ Design Agent:
+│   └─ "Ni:Mn:Co 비율 최적화... 8:1:1 추천"
+│
+├─→ Synthesis Agent:
+│   └─ "공침법 레시피 생성... 850°C, 12h, O2 분위기"
+│
+└─→ Report:
+    └─ "NMC811 추천, 예상 용량 200mAh/g, 합성 조건 첨부"</code></pre>
+
+<h3>예시 2: 신규 열전재료 탐색</h3>
+<pre><code>사용자: "ZT > 1.5인 친환경 열전재료 후보 추천해줘"
+
+Master Agent:
+├─→ Discovery: "Pb-free 열전재료 DB 검색"
+├─→ Compute: "SnSe, BiCuSeO 등 ZT 계산"
+├─→ Design: "도핑 원소 스크리닝 (Na, K, Bi)"
+├─→ Analysis: "밴드 구조, 포논 분석"
+└─→ Report: "Top 5 후보 + 예측 ZT + 합성 난이도"</code></pre>
+
+<h2>6. 기술 스택</h2>
+
+<div class="grid">
+  <div class="skill-box">
+    <h4>Frontend / Interface</h4>
+    <ul>
+      <li>Web UI (Next.js / React)</li>
+      <li>CLI (Claude Code 스타일)</li>
+      <li>Jupyter Notebook Integration</li>
+      <li>VS Code Extension</li>
+    </ul>
+  </div>
+  <div class="skill-box">
+    <h4>Agent Framework</h4>
+    <ul>
+      <li>LangGraph / LangChain</li>
+      <li>Claude API (Tool Use)</li>
+      <li>AutoGen / CrewAI</li>
+      <li>Vector DB (Pinecone, Weaviate)</li>
+    </ul>
+  </div>
+  <div class="skill-box">
+    <h4>Domain Tools</h4>
+    <ul>
+      <li>pymatgen, ASE, mp-api</li>
+      <li>UPET, M3GNet, CHGNet (MLIP)</li>
+      <li>VASP, Quantum ESPRESSO</li>
+      <li>RDKit, OpenBabel (분자)</li>
+    </ul>
+  </div>
+  <div class="skill-box">
+    <h4>Data Sources</h4>
+    <ul>
+      <li>Materials Project API</li>
+      <li>ICSD, AFLOW, OQMD</li>
+      <li>Synthesis DB (text-mined)</li>
+      <li>Semantic Scholar API</li>
+    </ul>
+  </div>
+</div>
+
+<h2>7. 기존 도구와의 차별점</h2>
+
+<table>
+  <tr>
+    <th>구분</th>
+    <th>기존 도구</th>
+    <th>MatSci Agent</th>
+  </tr>
+  <tr>
+    <td>인터랙션</td>
+    <td>단일 쿼리 → 응답</td>
+    <td>다단계 연구 워크플로우</td>
+  </tr>
+  <tr>
+    <td>계산 실행</td>
+    <td>수동 스크립트 작성</td>
+    <td>자동 계산 제출/모니터링</td>
+  </tr>
+  <tr>
+    <td>결과 처리</td>
+    <td>Raw 데이터 반환</td>
+    <td>해석 + 다음 단계 추천</td>
+  </tr>
+  <tr>
+    <td>데이터 검색</td>
+    <td>개별 DB 각각 검색</td>
+    <td>통합 지식 그래프</td>
+  </tr>
+  <tr>
+    <td>학습</td>
+    <td>없음</td>
+    <td>연구 히스토리 기반 개선</td>
+  </tr>
+  <tr>
+    <td>협업</td>
+    <td>단일 도구</td>
+    <td>Multi-Agent 협업</td>
+  </tr>
+</table>
+
+<h2>8. 로드맵</h2>
+
+<table>
+  <tr>
+    <th>Phase</th>
+    <th>목표</th>
+    <th>주요 기능</th>
+  </tr>
+  <tr>
+    <td><strong>Phase 1</strong><br>MVP</td>
+    <td>핵심 기능 구현</td>
+    <td>DB 검색, MLIP 계산, 기본 합성 추천</td>
+  </tr>
+  <tr>
+    <td><strong>Phase 2</strong><br>확장</td>
+    <td>계산 연동 강화</td>
+    <td>DFT 워크플로우, 문헌 검색, 보고서 생성</td>
+  </tr>
+  <tr>
+    <td><strong>Phase 3</strong><br>자동화</td>
+    <td>실험 연동</td>
+    <td>HTE 연동, Active Learning, 자동 최적화</td>
+  </tr>
+  <tr>
+    <td><strong>Phase 4</strong><br>지능화</td>
+    <td>자율 연구</td>
+    <td>가설 생성, 실험 자동 설계, 논문 작성</td>
+  </tr>
+</table>
+
+<h2>9. 기대 효과</h2>
+
+<div class="highlight">
+  <ul>
+    <li><strong>연구 속도 10배 향상</strong> - 반복 작업 자동화</li>
+    <li><strong>신소재 발견 가속화</strong> - 체계적 탐색 + AI 추천</li>
+    <li><strong>지식 축적 및 재활용</strong> - 조직 내 연구 자산화</li>
+    <li><strong>비전문가 접근성</strong> - 도메인 지식 없이도 활용 가능</li>
+  </ul>
+</div>
+
+<hr style="margin: 40px 0; border: none; border-top: 2px solid #e2e8f0;">
+<p style="text-align: center; color: #718096;">
+  <strong>MatSci Agent Framework</strong> - Concept Document<br>
+  <em>2026-02-01</em>
+</p>
+
+</body>
+</html>
