@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bkit (Vibecoding Kit) 사용 가이드</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: #fff;
+    }
+    h1 { color: #553c9a; border-bottom: 3px solid #805ad5; padding-bottom: 10px; margin-bottom: 30px; }
+    h2 { color: #6b46c1; margin-top: 40px; margin-bottom: 20px; border-left: 4px solid #805ad5; padding-left: 15px; }
+    h3 { color: #553c9a; margin-top: 25px; margin-bottom: 15px; }
+    p { margin-bottom: 15px; }
+    ul, ol { margin-left: 25px; margin-bottom: 15px; }
+    li { margin-bottom: 8px; }
+    code { background: #f3e8ff; padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.9em; color: #553c9a; }
+    pre { background: #1a202c; color: #e2e8f0; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 15px 0; font-size: 0.85em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { border: 1px solid #e2e8f0; padding: 12px; text-align: left; }
+    th { background: #805ad5; color: white; }
+    tr:nth-child(even) { background: #faf5ff; }
+    .highlight { background: #fef3c7; padding: 15px; border-radius: 8px; border-left: 4px solid #f59e0b; margin: 20px 0; }
+    .info { background: #e9d8fd; padding: 15px; border-radius: 8px; border-left: 4px solid #805ad5; margin: 20px 0; }
+    .diagram { background: #f7fafc; padding: 20px; border-radius: 8px; font-family: monospace; white-space: pre; overflow-x: auto; margin: 20px 0; font-size: 0.85em; }
+    .badge { display: inline-block; background: #805ad5; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 5px; }
+    @media print {
+      body { padding: 20px; }
+      h2 { page-break-before: always; }
+      h2:first-of-type { page-break-before: avoid; }
+      pre { white-space: pre-wrap; font-size: 0.8em; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>bkit (Vibecoding Kit) 사용 가이드</h1>
+<p style="text-align: center; color: #718096;">Claude Code에서 AI-Native 개발을 위한 bkit 플러그인 사용법</p>
+<p style="text-align: center; color: #718096;">bkit v1.4.7 | Last Updated: 2026-02-01</p>
+
+<h2>1. bkit이란?</h2>
+
+<div class="info">
+  <strong>bkit (Vibecoding Kit)</strong>은 Claude Code에서 PDCA 방법론 기반의 체계적인 개발을 지원하는 플러그인입니다.
+</div>
+
+<h3>핵심 기능</h3>
+<ul>
+  <li><strong>PDCA Cycle</strong>: Plan → Design → Do → Check → Act</li>
+  <li><strong>Multi-Agent System</strong>: 전문화된 AI 에이전트 자동 호출</li>
+  <li><strong>Level-based Development</strong>: Starter / Dynamic / Enterprise</li>
+  <li><strong>자동화된 품질 관리</strong>: Gap Analysis, Code Review</li>
+</ul>
+
+<h2>2. 시작하기</h2>
+
+<h3>Claude Code 설치</h3>
+<pre><code># Claude Code CLI 설치
+npm install -g @anthropic-ai/claude-code
+
+# 프로젝트에서 실행
+cd materials-data-portal
+claude</code></pre>
+
+<h3>bkit 시작 옵션</h3>
+<table>
+  <tr>
+    <th>옵션</th>
+    <th>설명</th>
+  </tr>
+  <tr>
+    <td>Learn bkit</td>
+    <td>bkit 사용법 학습</td>
+  </tr>
+  <tr>
+    <td>Learn Claude Code</td>
+    <td>Claude Code 기능 학습</td>
+  </tr>
+  <tr>
+    <td>Start new project</td>
+    <td>새 프로젝트 시작</td>
+  </tr>
+  <tr>
+    <td>Start freely</td>
+    <td>자유 대화 모드</td>
+  </tr>
+</table>
+
+<h2>3. PDCA Cycle</h2>
+
+<h3>통합 명령어: /pdca</h3>
+<pre><code>/pdca plan {feature}      # 계획 수립
+/pdca design {feature}    # 설계 문서 작성
+/pdca do {feature}        # 구현
+/pdca analyze {feature}   # Gap 분석
+/pdca iterate {feature}   # 자동 개선
+/pdca report {feature}    # 완료 보고서
+/pdca status              # 현재 상태 확인
+/pdca next                # 다음 단계 안내</code></pre>
+
+<h3>PDCA 흐름도</h3>
+<div class="diagram">┌─────────┐     ┌─────────┐     ┌─────────┐     ┌─────────┐
+│  Plan   │ ──▶ │ Design  │ ──▶ │   Do    │ ──▶ │  Check  │
+│ (계획)  │     │ (설계)  │     │ (구현)  │     │ (검증)  │
+└─────────┘     └─────────┘     └─────────┘     └────┬────┘
+                                                     │
+                                              ┌──────▼──────┐
+                                              │  Act (개선)  │
+                                              │  < 90%: 반복 │
+                                              │ >= 90%: 완료 │
+                                              └─────────────┘</div>
+
+<h2>4. 전문 에이전트</h2>
+
+<p>bkit은 상황에 맞는 에이전트를 자동으로 호출합니다.</p>
+
+<table>
+  <tr>
+    <th>에이전트</th>
+    <th>역할</th>
+    <th>트리거 키워드</th>
+  </tr>
+  <tr>
+    <td><code>gap-detector</code></td>
+    <td>설계-구현 Gap 분석</td>
+    <td>verify, 검증, 확인</td>
+  </tr>
+  <tr>
+    <td><code>pdca-iterator</code></td>
+    <td>자동 반복 개선</td>
+    <td>improve, 개선, 고쳐줘</td>
+  </tr>
+  <tr>
+    <td><code>code-analyzer</code></td>
+    <td>코드 품질 분석</td>
+    <td>analyze, 분석, 품질</td>
+  </tr>
+  <tr>
+    <td><code>report-generator</code></td>
+    <td>완료 보고서 생성</td>
+    <td>report, 보고서</td>
+  </tr>
+  <tr>
+    <td><code>design-validator</code></td>
+    <td>설계 문서 검증</td>
+    <td>validate design, 설계 검증</td>
+  </tr>
+  <tr>
+    <td><code>starter-guide</code></td>
+    <td>초보자 가이드</td>
+    <td>help, 도움, 모르겠어</td>
+  </tr>
+  <tr>
+    <td><code>bkend-expert</code></td>
+    <td>BaaS 백엔드 전문가</td>
+    <td>login, auth, database</td>
+  </tr>
+  <tr>
+    <td><code>enterprise-expert</code></td>
+    <td>엔터프라이즈 아키텍처</td>
+    <td>microservices, k8s</td>
+  </tr>
+  <tr>
+    <td><code>infra-architect</code></td>
+    <td>인프라 설계</td>
+    <td>AWS, terraform, CI/CD</td>
+  </tr>
+</table>
+
+<h3>에이전트 자동 호출 예시</h3>
+<pre><code>사용자: "이거 검증해줘"
+→ gap-detector 자동 호출
+
+사용자: "코드 분석해줘"
+→ code-analyzer 자동 호출
+
+사용자: "개선해줘"
+→ pdca-iterator 자동 호출</code></pre>
+
+<h2>5. 스킬 (Skills)</h2>
+
+<h3>레벨별 스킬</h3>
+<table>
+  <tr>
+    <th>스킬</th>
+    <th>레벨</th>
+    <th>용도</th>
+  </tr>
+  <tr>
+    <td><code>/starter</code></td>
+    <td>Starter</td>
+    <td>정적 웹사이트, 포트폴리오</td>
+  </tr>
+  <tr>
+    <td><code>/dynamic</code></td>
+    <td>Dynamic</td>
+    <td>풀스택 앱, 인증, DB</td>
+  </tr>
+  <tr>
+    <td><code>/enterprise</code></td>
+    <td>Enterprise</td>
+    <td>마이크로서비스, K8s</td>
+  </tr>
+</table>
+
+<h3>개발 파이프라인</h3>
+<pre><code>/development-pipeline         # 9단계 파이프라인 안내
+/phase-1-schema               # 스키마/용어 정의
+/phase-2-convention           # 코딩 컨벤션
+/phase-3-mockup               # UI 목업
+/phase-4-api                  # API 설계
+/phase-5-design-system        # 디자인 시스템
+/phase-6-ui-integration       # UI 통합
+/phase-7-seo-security         # SEO/보안
+/phase-8-review               # 코드 리뷰
+/phase-9-deployment           # 배포</code></pre>
+
+<h3>유틸리티 스킬</h3>
+<pre><code>/code-review                  # 코드 리뷰
+/zero-script-qa               # 로그 기반 QA
+/claude-code-learning         # Claude Code 학습
+/mobile-app                   # 모바일 앱 개발
+/desktop-app                  # 데스크톱 앱 개발</code></pre>
+
+<h2>6. 실전 사용 예시</h2>
+
+<h3>예시 1: 새 기능 개발</h3>
+<pre><code># 1. 계획 수립
+사용자: "/pdca plan 사용자 인증 기능"
+
+# 2. 설계 문서 작성
+사용자: "/pdca design 사용자 인증 기능"
+
+# 3. 구현
+사용자: "로그인 기능 구현해줘"
+
+# 4. Gap 분석
+사용자: "검증해줘" 또는 "/pdca analyze 사용자 인증 기능"
+
+# 5. 결과에 따라
+# - Match Rate < 90%: 자동 개선
+# - Match Rate >= 90%: 완료 보고서</code></pre>
+
+<h3>예시 2: 코드 품질 확인</h3>
+<pre><code>사용자: "이 코드 분석해줘"
+→ code-analyzer 자동 호출
+→ 품질, 보안, 성능 이슈 리포트</code></pre>
+
+<h3>예시 3: 초보자 도움</h3>
+<pre><code>사용자: "어떻게 시작해야 할지 모르겠어"
+→ starter-guide 자동 호출
+→ 단계별 안내 제공</code></pre>
+
+<h2>7. Feature Usage Report</h2>
+
+<p>bkit은 매 응답마다 사용 현황을 보고합니다:</p>
+
+<div class="diagram" style="background: #2d3748; color: #e2e8f0;">
+─────────────────────────────────────────────────
+📊 bkit Feature Usage
+─────────────────────────────────────────────────
+✅ Used: [사용된 기능]
+⏭️ Not Used: [미사용 기능] (이유)
+💡 Recommended: [다음 추천 기능]
+─────────────────────────────────────────────────</div>
+
+<h2>8. 다국어 지원</h2>
+
+<p>bkit은 8개 언어를 자동 감지합니다:</p>
+
+<table>
+  <tr>
+    <td>🇺🇸 English</td>
+    <td>🇰🇷 한국어</td>
+    <td>🇯🇵 日本語</td>
+    <td>🇨🇳 中文</td>
+  </tr>
+  <tr>
+    <td>🇪🇸 Español</td>
+    <td>🇫🇷 Français</td>
+    <td>🇩🇪 Deutsch</td>
+    <td>🇮🇹 Italiano</td>
+  </tr>
+</table>
+
+<h2>9. 주의사항</h2>
+
+<div class="highlight">
+  <ol>
+    <li><strong>AI는 완벽하지 않습니다</strong> - 중요한 결정은 항상 검증하세요</li>
+    <li><strong>PDCA 순서 권장</strong> - Plan → Design → Do → Check 순서로 진행</li>
+    <li><strong>Gap Analysis &lt; 90%</strong> - 자동 개선 반복 (최대 5회)</li>
+    <li><strong>문서 우선</strong> - 구현 전 계획/설계 문서 작성 권장</li>
+  </ol>
+</div>
+
+<hr style="margin: 40px 0; border: none; border-top: 2px solid #e2e8f0;">
+<p style="text-align: center; color: #718096;">
+  <strong>Claude Code 문서:</strong> <a href="https://docs.anthropic.com/claude-code">https://docs.anthropic.com/claude-code</a>
+</p>
+
+</body>
+</html>
